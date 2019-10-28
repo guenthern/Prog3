@@ -55,17 +55,16 @@ namespace Prog3
             EnableDisableButtons();
         }
 
-        protected void btnUpdate_Click(object sender, EventArgs e)
+         protected void btnUpdate_Click(object sender, EventArgs e)
         {
             try
             {
-                string theID = txtID.Text;
-                string newName = txtName.Text;
-                double newPrice = double.Parse(txtPrice.Text.Replace("$", ""));
-                string newDesc = txtDescription.Text;
-                SQLDataClass.UpdateProduct(theID, newName, newPrice, newDesc);
-                txtMessage.Text = "Record updated.";
-                SQLDataClass.getAllProducts();
+                SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["UWPCS3870ConnectionString1"].ConnectionString);
+                conn.Open();
+                string insertQuery = "Update Product set ProductID = '" + txtID.Text + "', ProductName = '" + txtName.Text + "', UnitPrice = '" + txtPrice.Text + "', Description = '" + txtDescription.Text + "' where ProductID = '" + txtID.Text + "'";
+
+                SqlCommand com = new SqlCommand(insertQuery, conn);
+                com.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -123,12 +122,13 @@ namespace Prog3
             }
         }
 
-        protected void btnDelete_Click(object sender, EventArgs e)
+         protected void btnDelete_Click(object sender, EventArgs e)
         {
             if (btnDelete.Text != "Delete")
             {
                 DisplayRow((int)Session["Prog3_Index"]);
                 btnDelete.Text = "Delete";
+                btnNew.Text = "New";
                 btnFirst.Enabled = true;
                 btnLast.Enabled = true;
                 btnNext.Enabled = true;
@@ -144,10 +144,9 @@ namespace Prog3
 
                 SqlCommand com = new SqlCommand(insertQuery, conn);
                 com.Parameters.AddWithValue("@keyID", txtID.Text);
-
-                com.ExecuteNonQuery();
-                Response.Redirect("Updating.aspx");
                 Session["Prog3_Index"] = (int)Session["Prog3_Index"] - 1;
+                com.ExecuteNonQuery();
+                Response.Redirect("Updating.aspx");             
                 conn.Close();
             }
         }
